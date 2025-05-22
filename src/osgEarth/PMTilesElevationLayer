@@ -1,0 +1,94 @@
+/* osgEarth
+ * Copyright 2025 Pelican Mapping
+ * MIT License
+ */
+#pragma once
+
+#include <osgEarth/ElevationLayer>
+#include <osgEarth/PMTiles>
+#include <osgEarth/URI>
+
+namespace osgEarth
+{
+    /**
+     * Elevation layer that reads from PMTiles archives containing elevation data.
+     * 
+     * PMTiles elevation tiles can contain various formats of elevation data:
+     * - Terrain-RGB encoded PNG tiles
+     * - Raw elevation data in binary format
+     * - Quantized mesh data
+     * 
+     * Example usage in earth file:
+     * <elevation name="example" driver="pmtiles">
+     *   <url>https://example.com/elevation.pmtiles</url>
+     *   <encoding>terrain-rgb</encoding>
+     * </elevation>
+     */
+    class OSGEARTH_EXPORT PMTilesElevationLayer : public ElevationLayer
+    {
+    public:
+        class OSGEARTH_EXPORT Options : public ElevationLayer::Options
+        {
+        public:
+            META_LayerOptions(osgEarth, Options, ElevationLayer::Options);
+            OE_OPTION(URI, url);
+            OE_OPTION(std::string, encoding, "terrain-rgb");
+            OE_OPTION(float, verticalScale, 1.0f);
+            OE_OPTION(float, verticalOffset, 0.0f);
+            virtual Config getConfig() const;
+            private:
+                void fromConfig(const Config& conf);
+        };
+
+    public:
+        META_Layer(osgEarth, PMTilesElevationLayer, Options, ElevationLayer, pmtiles_elevation);
+
+        //! URL of the PMTiles file (local or remote)
+        void setURL(const URI& value);
+        const URI& getURL() const;
+
+        //! Elevation encoding format (terrain-rgb, quantized-mesh, etc.)
+        void setEncoding(const std::string& value);
+        const std::string& getEncoding() const;
+
+        //! Vertical scale factor for elevation values
+        void setVerticalScale(const float& value);
+        const float& getVerticalScale() const;
+
+        //! Vertical offset to add to elevation values
+        void setVerticalOffset(const float& value);
+        const float& getVerticalOffset() const;
+
+    public: // Layer
+
+        //! Called when the layer is added to the map
+        virtual Status openImplementation() override;
+
+        //! Called when the layer is removed from the map
+        virtual Status closeImplementation() override;
+
+        //! Creates a heightfield for the given tile key
+        virtual GeoHeightField createHeightFieldImplementation(const TileKey& key, ProgressCallback* progress) const override;
+
+    protected:
+
+        /** dtor */
+        virtual ~PMTilesElevationLayer();
+
+        virtual void init() override;
+
+    private:
+        //! Decode terrain-RGB encoded elevation data
+        osg::HeightField* decodeTerrainRGB(osg::Image* image) const;
+
+        //! Decode quantized mesh data (for future implementation)
+        osg::HeightField* decodeQuantizedMesh(const std::vector<uint8_t>& data) const;
+
+    private:
+        std::unique_ptr<PMTiles> _pmtiles;
+        mutable std::mutex _pmtilesMutex;
+    };
+
+} // namespace osgEarth
+
+OSGEARTH_SPECIALIZE_CONFIG(osgEarth::PMTilesElevationLayer::Options);

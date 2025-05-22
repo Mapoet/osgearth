@@ -1,0 +1,74 @@
+/* osgEarth
+ * Copyright 2025 Pelican Mapping
+ * MIT License
+ */
+#pragma once
+
+#include <osgEarth/ImageLayer>
+#include <osgEarth/PMTiles>
+#include <osgEarth/URI>
+
+namespace osgEarth
+{
+    /**
+     * Image layer that reads from PMTiles archives.
+     * 
+     * PMTiles is a single-file archive format for pyramids of tiled data
+     * that can be hosted on a static file server or read from local storage.
+     * 
+     * Example usage in earth file:
+     * <image name="example" driver="pmtiles">
+     *   <url>https://example.com/tiles.pmtiles</url>
+     * </image>
+     */
+    class OSGEARTH_EXPORT PMTilesImageLayer : public ImageLayer
+    {
+    public:
+        class OSGEARTH_EXPORT Options : public ImageLayer::Options
+        {
+        public:
+            META_LayerOptions(osgEarth, Options, ImageLayer::Options);
+            OE_OPTION(URI, url);
+            OE_OPTION(std::string, format);
+            virtual Config getConfig() const;
+            private:
+                void fromConfig(const Config& conf);
+        };
+
+    public:
+        META_Layer(osgEarth, PMTilesImageLayer, Options, ImageLayer, pmtiles_image);
+
+        //! URL of the PMTiles file (local or remote)
+        void setURL(const URI& value);
+        const URI& getURL() const;
+
+        //! Expected image format in the PMTiles file
+        void setFormat(const std::string& value);
+        const std::string& getFormat() const;
+
+    public: // Layer
+
+        //! Called when the layer is added to the map
+        virtual Status openImplementation() override;
+
+        //! Called when the layer is removed from the map
+        virtual Status closeImplementation() override;
+
+        //! Creates an image for the given tile key
+        virtual GeoImage createImageImplementation(const TileKey& key, ProgressCallback* progress) const override;
+
+    protected:
+
+        /** dtor */
+        virtual ~PMTilesImageLayer();
+
+        virtual void init() override;
+
+    private:
+        std::unique_ptr<PMTiles> _pmtiles;
+        mutable std::mutex _pmtilesMutex;
+    };
+
+} // namespace osgEarth
+
+OSGEARTH_SPECIALIZE_CONFIG(osgEarth::PMTilesImageLayer::Options);

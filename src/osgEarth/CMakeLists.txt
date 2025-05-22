@@ -321,6 +321,9 @@ SET(TARGET_H
     PhongLightingEffect
     Picker
     PlaceNode
+    PMTiles
+    PMTilesElevationLayer
+    PMTilesImageLayer
     PluginLoader
     PointDrawable
     PointSymbol
@@ -667,6 +670,9 @@ set(TARGET_SRC
     PBRMaterial.cpp
     PhongLightingEffect.cpp
     PlaceNode.cpp
+    PMTiles.cpp
+    PMTilesElevationLayer.cpp
+    PMTilesImageLayer.cpp
     PointDrawable.cpp
     PointSymbol.cpp
     PolygonizeLines.cpp

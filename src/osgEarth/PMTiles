@@ -1,0 +1,236 @@
+/* osgEarth
+ * Copyright 2025 Pelican Mapping
+ * MIT License
+ */
+#pragma once
+
+#include <osgEarth/Common>
+#include <osgEarth/TileKey>
+#include <osgEarth/URI>
+#include <osgEarth/Threading>
+#include <osgEarth/Containers>
+#include <osgEarth/Progress>
+#include <osg/Image>
+#include <memory>
+#include <vector>
+#include <unordered_map>
+
+namespace osgEarth
+{
+    /**
+     * PMTiles format decoder and reader.
+     * 
+     * PMTiles is a single-file archive format for pyramids of tiled data.
+     * It supports both local files and remote access via HTTP range requests.
+     * 
+     * File format:
+     * - Header (127 bytes)
+     * - Root Directory
+     * - Metadata (JSON)
+     * - Tile Data
+     */
+    class OSGEARTH_EXPORT PMTiles
+    {
+    public:
+        //! Tile compression types
+        enum Compression {
+            COMPRESSION_UNKNOWN = 0,
+            COMPRESSION_NONE = 1,
+            COMPRESSION_GZIP = 2,
+            COMPRESSION_BROTLI = 3,
+            COMPRESSION_ZSTD = 4
+        };
+
+        //! Tile data types
+        enum TileType {
+            TILE_UNKNOWN = 0,
+            TILE_MVT = 1,
+            TILE_PNG = 2,
+            TILE_JPEG = 3,
+            TILE_WEBP = 4
+        };
+
+        /**
+         * PMTiles header structure (127 bytes)
+         */
+        struct Header {
+            char magic[7];           // "PMTiles"
+            uint8_t version;         // Version (3)
+            uint64_t rootDirOffset;  // Root directory offset
+            uint64_t rootDirLength;  // Root directory length
+            uint64_t metadataOffset; // Metadata offset
+            uint64_t metadataLength; // Metadata length
+            uint8_t compression;     // Tile compression
+            uint8_t tileType;        // Tile type
+            uint8_t minZoom;         // Minimum zoom level
+            uint8_t maxZoom;         // Maximum zoom level
+            double minLon, minLat;   // Bounding box
+            double maxLon, maxLat;
+            uint8_t centerZoom;      // Center zoom
+            double centerLon, centerLat; // Center coordinates
+            
+            Header();
+            bool isValid() const;
+        };
+
+        /**
+         * Directory entry for a tile
+         */
+        struct Entry {
+            uint64_t tileId;     // Hilbert curve tile ID
+            uint64_t offset;     // Offset in file
+            uint32_t length;     // Length of tile data
+            uint32_t runLength;  // Run length (for compression)
+            
+            Entry() : tileId(0), offset(0), length(0), runLength(0) {}
+            Entry(uint64_t id, uint64_t off, uint32_t len, uint32_t run = 1)
+                : tileId(id), offset(off), length(len), runLength(run) {}
+        };
+
+        using Directory = std::vector<Entry>;
+
+    public:
+        /**
+         * Constructor
+         * @param uri URI to PMTiles file (local or remote)
+         */
+        PMTiles(const URI& uri);
+
+        /**
+         * Destructor
+         */
+        ~PMTiles();
+
+        /**
+         * Open the PMTiles file and read header
+         */
+        Status open(ProgressCallback* progress = nullptr);
+
+        /**
+         * Check if the PMTiles file is open and valid
+         */
+        bool isOpen() const { return _isOpen; }
+
+        /**
+         * Get the header information
+         */
+        const Header& getHeader() const { return _header; }
+
+        /**
+         * Get metadata as JSON string
+         */
+        const std::string& getMetadata() const { return _metadata; }
+
+        /**
+         * Get a tile by Z/X/Y coordinates
+         * @param z Zoom level
+         * @param x Tile X coordinate
+         * @param y Tile Y coordinate
+         * @param progress Optional progress callback
+         * @return Tile data or empty vector if not found
+         */
+        std::vector<uint8_t> getTile(unsigned z, unsigned x, unsigned y, ProgressCallback* progress = nullptr);
+
+        /**
+         * Get a tile by TileKey
+         * @param key TileKey specifying the tile
+         * @param progress Optional progress callback
+         * @return Tile data or empty vector if not found
+         */
+        std::vector<uint8_t> getTile(const TileKey& key, ProgressCallback* progress = nullptr);
+
+        /**
+         * Check if a tile exists at the given coordinates
+         * @param z Zoom level
+         * @param x Tile X coordinate  
+         * @param y Tile Y coordinate
+         * @return True if tile exists
+         */
+        bool hasTile(unsigned z, unsigned x, unsigned y);
+
+        /**
+         * Get the tile type
+         */
+        TileType getTileType() const { return static_cast<TileType>(_header.tileType); }
+
+        /**
+         * Get the compression type
+         */
+        Compression getCompression() const { return static_cast<Compression>(_header.compression); }
+
+        /**
+         * Get zoom range
+         */
+        unsigned getMinZoom() const { return _header.minZoom; }
+        unsigned getMaxZoom() const { return _header.maxZoom; }
+
+        /**
+         * Get geographic bounds
+         */
+        void getBounds(double& minLon, double& minLat, double& maxLon, double& maxLat) const;
+
+    public:
+        /**
+         * Convert Z/X/Y coordinates to Hilbert curve tile ID
+         */
+        static uint64_t zxyToTileId(unsigned z, unsigned x, unsigned y);
+
+        /**
+         * Convert Hilbert curve tile ID to Z/X/Y coordinates
+         */
+        static void tileIdToZxy(uint64_t tileId, unsigned& z, unsigned& x, unsigned& y);
+
+    private:
+        /**
+         * Read data from file/URI with optional range
+         */
+        std::vector<uint8_t> readData(uint64_t offset, uint64_t length, ProgressCallback* progress = nullptr);
+
+        /**
+         * Read and parse the header
+         */
+        Status readHeader(ProgressCallback* progress = nullptr);
+
+        /**
+         * Read and parse the root directory
+         */
+        Status readRootDirectory(ProgressCallback* progress = nullptr);
+
+        /**
+         * Read metadata JSON
+         */
+        Status readMetadata(ProgressCallback* progress = nullptr);
+
+        /**
+         * Find a tile entry in the directory
+         */
+        const Entry* findTileEntry(uint64_t tileId);
+
+        /**
+         * Decompress tile data based on compression type
+         */
+        std::vector<uint8_t> decompressTile(const std::vector<uint8_t>& compressedData);
+
+        /**
+         * Parse directory from compressed data
+         */
+        Directory parseDirectory(const std::vector<uint8_t>& data);
+
+        /**
+         * Varint decoding for directory parsing
+         */
+        uint64_t readVarint(const uint8_t*& data, const uint8_t* end);
+
+    private:
+        URI _uri;
+        bool _isOpen;
+        Header _header;
+        Directory _rootDirectory;
+        std::string _metadata;
+        
+        // For remote files, cache the root directory and metadata
+        mutable std::mutex _directoryMutex;
+        mutable std::unordered_map<uint64_t, Directory> _directoryCache;
+    };
+
+} // namespace osgEarth
