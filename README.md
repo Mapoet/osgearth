@@ -115,6 +115,21 @@ make -j
 sudo make install
 ```
 
+### osgearth
+
+```bash
+git clone https://github.com/Mapoet/osgearth.git
+cd osgearth
+mkdir build && cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=/usr \
+         -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+         -DCMAKE_BUILD_TYPE=Release
+make -j
+sudo make install
+```
+
+
+
 ## Build it yourself
 
 To build osgEarth yourself, [follow the instructions here](https://docs.osgearth.org/en/latest/build.html).
