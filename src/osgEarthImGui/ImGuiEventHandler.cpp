@@ -5,6 +5,8 @@
 #include "ImGuiEventHandler"
 #include "imgui_internal.h"
 #include "imgui_impl_opengl3.h"
+#include "implot.h"
+#include "implot3d.h"
 
 using namespace osgEarth;
 
@@ -41,6 +43,8 @@ ImGuiEventHandler::newFrame(osg::RenderInfo& renderInfo)
     if (_firstFrame)
     {
         ImGui::CreateContext();
+        ImPlot::CreateContext();
+        ImPlot3D::CreateContext();
         ImNodes::CreateContext();
         //ImNodes::PushAttributeFlag(ImNodesAttributeFlags_EnableLinkDetachWithDragClick);
         ImNodesIO& imNodesio = ImNodes::GetIO();
