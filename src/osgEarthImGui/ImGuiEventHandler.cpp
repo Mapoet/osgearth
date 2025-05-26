@@ -43,8 +43,6 @@ ImGuiEventHandler::newFrame(osg::RenderInfo& renderInfo)
     if (_firstFrame)
     {
         ImGui::CreateContext();
-        ImPlot::CreateContext();
-        ImPlot3D::CreateContext();
         ImNodes::CreateContext();
         //ImNodes::PushAttributeFlag(ImNodesAttributeFlags_EnableLinkDetachWithDragClick);
         ImNodesIO& imNodesio = ImNodes::GetIO();
@@ -56,6 +54,8 @@ ImGuiEventHandler::newFrame(osg::RenderInfo& renderInfo)
 #ifdef IMGUI_HAS_DOCK
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 #endif
+        ImPlot::CreateContext();
+        ImPlot3D::CreateContext();
         // call a user startup function if set
         if (onStartup)
             onStartup();
