@@ -87,6 +87,34 @@ int main(int argc, char** argv)
 }
 ```
 
+## Dependencies
+
+Before building osgEarth, you'll need to install some required dependencies:
+
+### fmt library
+```bash
+git clone https://github.com/fmtlib/fmt.git
+cd fmt
+mkdir build && cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=/usr \
+         -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+         -DCMAKE_BUILD_TYPE=Release
+make -j
+sudo make install
+```
+
+### spdlog library
+```bash
+git clone https://github.com/gabime/spdlog.git
+cd spdlog
+mkdir build && cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=/usr \
+         -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+         -DCMAKE_BUILD_TYPE=Release
+make -j
+sudo make install
+```
+
 ## Build it yourself
 
 To build osgEarth yourself, [follow the instructions here](https://docs.osgearth.org/en/latest/build.html).

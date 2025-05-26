@@ -1,0 +1,42 @@
+file(REMOVE_RECURSE
+  ".174"
+  "CMakeFiles/osgEarthImGui.dir/ImGuiEventHandler.cpp.o"
+  "CMakeFiles/osgEarthImGui.dir/ImGuiEventHandler.cpp.o.d"
+  "CMakeFiles/osgEarthImGui.dir/imgui.cpp.o"
+  "CMakeFiles/osgEarthImGui.dir/imgui.cpp.o.d"
+  "CMakeFiles/osgEarthImGui.dir/imgui_demo.cpp.o"
+  "CMakeFiles/osgEarthImGui.dir/imgui_demo.cpp.o.d"
+  "CMakeFiles/osgEarthImGui.dir/imgui_draw.cpp.o"
+  "CMakeFiles/osgEarthImGui.dir/imgui_draw.cpp.o.d"
+  "CMakeFiles/osgEarthImGui.dir/imgui_impl_opengl3.cpp.o"
+  "CMakeFiles/osgEarthImGui.dir/imgui_impl_opengl3.cpp.o.d"
+  "CMakeFiles/osgEarthImGui.dir/imgui_tables.cpp.o"
+  "CMakeFiles/osgEarthImGui.dir/imgui_tables.cpp.o.d"
+  "CMakeFiles/osgEarthImGui.dir/imgui_widgets.cpp.o"
+  "CMakeFiles/osgEarthImGui.dir/imgui_widgets.cpp.o.d"
+  "CMakeFiles/osgEarthImGui.dir/imnodes.cpp.o"
+  "CMakeFiles/osgEarthImGui.dir/imnodes.cpp.o.d"
+  "CMakeFiles/osgEarthImGui.dir/implot.cpp.o"
+  "CMakeFiles/osgEarthImGui.dir/implot.cpp.o.d"
+  "CMakeFiles/osgEarthImGui.dir/implot3d.cpp.o"
+  "CMakeFiles/osgEarthImGui.dir/implot3d.cpp.o.d"
+  "CMakeFiles/osgEarthImGui.dir/implot3d_demo.cpp.o"
+  "CMakeFiles/osgEarthImGui.dir/implot3d_demo.cpp.o.d"
+  "CMakeFiles/osgEarthImGui.dir/implot3d_items.cpp.o"
+  "CMakeFiles/osgEarthImGui.dir/implot3d_items.cpp.o.d"
+  "CMakeFiles/osgEarthImGui.dir/implot3d_meshes.cpp.o"
+  "CMakeFiles/osgEarthImGui.dir/implot3d_meshes.cpp.o.d"
+  "CMakeFiles/osgEarthImGui.dir/implot_demo.cpp.o"
+  "CMakeFiles/osgEarthImGui.dir/implot_demo.cpp.o.d"
+  "CMakeFiles/osgEarthImGui.dir/implot_items.cpp.o"
+  "CMakeFiles/osgEarthImGui.dir/implot_items.cpp.o.d"
+  "libosgEarthImGui.pdb"
+  "libosgEarthImGui.so"
+  "libosgEarthImGui.so.174"
+  "libosgEarthImGui.so.3.7.3"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/osgEarthImGui.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()
