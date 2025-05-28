@@ -27,6 +27,10 @@ namespace osgEarth
         QuitGUI() : ImGuiPanel("Quit") { }
         void draw(osg::RenderInfo& ri) override
         {
+            ImGui_ImplOpenGL3_Shutdown();
+            ImPlot3D::DestroyContext();
+            ImPlot::DestroyContext();
+            ImGui::DestroyContext();
             exit(0);
         }
     };

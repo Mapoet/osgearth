@@ -15,6 +15,10 @@
 // note: No Windows declspec's here because we are using CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS
 
 #ifndef IMGUI_VERSION
+#include <osgEarthImGui/imgui_impl_opengl3.h>
 #include <osgEarthImGui/imgui.h>
+#include <osgEarthImGui/imgui_internal.h>
 #include <osgEarthImGui/imnodes.h>
+#include <osgEarthImGui/implot.h>
+#include <osgEarthImGui/implot3d.h>
 #endif
